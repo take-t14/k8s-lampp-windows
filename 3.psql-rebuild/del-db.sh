@@ -1,6 +1,6 @@
 #!/bin/bash
 
-kubectl config set-context docker-for-desktop --namespace=k8s-lapp-windows  
+kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
 
 kubectl delete -f k8s-db-sv.yaml
 

@@ -10,4 +10,4 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: hostpath
   hostPath:
-    path: /C/k8s/k8s-lapp-windows/2.src-deploy-disk/storage
+    path: /C/k8s/k8s-lampp-windows/2.src-deploy-disk/storage

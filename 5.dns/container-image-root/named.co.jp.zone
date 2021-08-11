@@ -8,5 +8,5 @@ $TTL 3600
 
 	IN	NS	co.jp.
 	86400	IN	A	172.16.2.36
-example1.co.jp.	86400	IN	CNAME	apache-sv.k8s-lapp-windows.svc.cluster.local.
-example2.co.jp.	86400	IN	CNAME	apache-sv.k8s-lapp-windows.svc.cluster.local.
+example1.co.jp.	86400	IN	CNAME	apache-sv.k8s-lampp-windows.svc.cluster.local.
+example2.co.jp.	86400	IN	CNAME	apache-sv.k8s-lampp-windows.svc.cluster.local.

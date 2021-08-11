@@ -10,7 +10,7 @@ __******************************************************************************
 __*　ファイル構成__  
 __**************************************************************************************__  
 
-k8s-lapp-windows/  
+k8s-lampp-windows/  
 　┣1.db-disk/・・・DBの永続ボリュームを作成するyaml等  
 　┣2.src-deploy-disk/・・・srcの永続ボリュームを作成するyaml等  
 　┣3.psql-rebuild/・・・postgreSQLのコンテナ、service、deployment等を作成するyaml等  
@@ -21,8 +21,8 @@ k8s-lapp-windows/
 　┣8.apache-rebuild/・・・apacheのコンテナ、service、deployment等を作成するyaml等  
 　┣9.mailsv-rebuild/・・・postfixのコンテナ、service、deployment等を作成するyaml等  
 　┣10.ingress/・・・ingressのyaml等  
-　┣k8s-lapp-all-build.sh・・・k8s-lapp-windowsのk8sコンテナを一斉に作成するシェル  
-　┣k8s-lapp-all-remove.sh・・・k8s-lapp-windowsのk8sコンテナを一斉に削除するシェル  
+　┣k8s-lampp-all-build.sh・・・k8s-lampp-windowsのk8sコンテナを一斉に作成するシェル  
+　┣k8s-lampp-all-remove.sh・・・k8s-lampp-windowsのk8sコンテナを一斉に削除するシェル  
 　┣kube-db-proxy.bat・・・podのDBへDBクライアント（A5等）から接続する為のポートフォワード起動  
 　┣kubeproxy.bat・・・kubernetesダッシュボードへアクセスする為のproxyを実行するバッチ  
 　┗ReadMe.md・・・使い方等々の説明  
@@ -44,7 +44,7 @@ __*　kubernetesを動かす基盤となるソフトウェアのインストー�
 __*　※ 1回だけ実施すればよい。__  
 __**************************************************************************************__  
 
-#### # k8s-lapp-windowsのフォルダの中身を「C:\k8s\k8s-lapp-windows」へ配置する。
+#### # k8s-lampp-windowsのフォルダの中身を「C:\k8s\k8s-lampp-windows」へ配置する。
 
 #### # Docker for Windowsをインストールし、設定画面でkubernetesを有効にする。
 
@@ -127,8 +127,8 @@ __******************************************************************************
 __*******************************************__  
 __*　スクリプトで実行する場合__  
 __*******************************************__  
-cd /mnt/c/k8s/k8s-lapp-windows  
-./k8s-lapp-all-build.sh  
+cd /mnt/c/k8s/k8s-lampp-windows  
+./k8s-lampp-all-build.sh  
 
 __※スクリプトで実行する場合は、以下「手動で実行する場合」は実施不要__
 
@@ -146,7 +146,7 @@ kubectl config get-contexts
 kubectl config current-context  
 
 #### # namespace作成
-kubectl create namespace k8s-lapp-windows  
+kubectl create namespace k8s-lampp-windows  
 
 #### # namespace確認
 kubectl get namespace  
@@ -155,7 +155,7 @@ kubectl get namespace
 kubectl config current-context  
 ##### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドset-contextの次に組み込む。  
 ##### # namespaceには、切り替えたいnamespaceを設定する。  
-kubectl config set-context docker-for-desktop --namespace=k8s-lapp-windows  
+kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts  
@@ -166,7 +166,7 @@ kubectl config get-contexts
 ##### # https://systemkd.blogspot.com/2018/02/docker-for-mac-kubernetes-ec-cube_12.html  
 
 #### # PersistentVolumeClaimの構築
-cd /mnt/c/k8s/k8s-lapp-windows/1.db-disk  
+cd /mnt/c/k8s/k8s-lampp-windows/1.db-disk  
 kubectl apply -f 1.PersistentVolume.yaml  
 kubectl apply -f 2.PersistentVolumeClaim.yaml  
 
@@ -187,7 +187,7 @@ kubectl apply -f 3.php-apache-psql-secret.yaml
 kubectl get pod  
 
 #### ＜src-deployのpvc構築＞
-cd /mnt/c/k8s/k8s-lapp-windows/2.src-deploy-disk  
+cd /mnt/c/k8s/k8s-lampp-windows/2.src-deploy-disk  
 
 #### # PersistentVolumeの構築
 kubectl apply -f 1.PersistentVolume.yaml  
@@ -198,53 +198,53 @@ kubectl apply -f 2.PersistentVolumeClaim.yaml
 #### # PersistentVolumeが作成されているかを確認
 kubectl get pv  
  または  
-kubectl -n k8s-lapp-windows get pv  
+kubectl -n k8s-lampp-windows get pv  
 
 #### # PersistentVolumeClaimが作成されているかを確認
 kubectl get pvc  
  または  
-kubectl -n k8s-lapp-windows get pvc  
+kubectl -n k8s-lampp-windows get pvc  
 
 #### # 全イメージを表示する．
 docker images  
 
 
 #### ＜php-srcのボリュームへチェックアウト＞
-##### # /mnt/c/k8s/k8s-lapp-windows/2.src-deploy-disk\storage
+##### # /mnt/c/k8s/k8s-lampp-windows/2.src-deploy-disk\storage
 ##### # ※ ここで各プロジェクトのソースコードをチェックアウトする
 
 #### ＜postgreSQL構築＞
 ##### # postgreSQLイメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/3.psql-rebuild  
+cd /mnt/c/k8s/k8s-lampp-windows/3.psql-rebuild  
 ./skaffold_run.sh  
 
 #### ＜MySQL構築＞
 ##### # MySQLイメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/4.mysql-rebuild  
+cd /mnt/c/k8s/k8s-lampp-windows/4.mysql-rebuild  
 ./skaffold_run.sh  
 
 #### ＜DNS(bind)構築＞
 ##### # DNS(bind)イメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/5.dns  
+cd /mnt/c/k8s/k8s-lampp-windows/5.dns  
 ./skaffold_run.sh  
 
 #### ＜php構築＞
 ##### # php7イメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/6.php7-rebuild
+cd /mnt/c/k8s/k8s-lampp-windows/6.php7-rebuild
 ./skaffold_run.sh  
 
 ##### # php5イメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/7.php5-rebuild
+cd /mnt/c/k8s/k8s-lampp-windows/7.php5-rebuild
 ./skaffold_run.sh  
 
 #### ＜apache構築＞
 ##### # apacheイメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/8.apache-rebuild
+cd /mnt/c/k8s/k8s-lampp-windows/8.apache-rebuild
 ./skaffold_run.sh  
 
 #### ＜mailsv構築＞
 ##### # mailsvイメージビルド
-cd /mnt/c/k8s/k8s-lapp-windows/9.mailsv-rebuild  
+cd /mnt/c/k8s/k8s-lampp-windows/9.mailsv-rebuild  
 kubectl apply -f ./k8s-mailsv-sv.yaml  
 
 #### ＜ingressを構築＞
@@ -252,7 +252,7 @@ kubectl apply -f ./k8s-mailsv-sv.yaml
 ##### # 参考サイト：https://kubernetes.github.io/ingress-nginx/deploy/
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml  
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml  
-cd /mnt/c/k8s/k8s-lapp-windows/10.ingress  
+cd /mnt/c/k8s/k8s-lampp-windows/10.ingress  
 
 #### sslの鍵登録 ※HTTPSを使用する際は実施
 ##### # kubectl create secret tls example1.co.jp --key ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.key --cert ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.crt
@@ -267,13 +267,13 @@ __******************************************************************************
 __*　以下はkubernetesを操作する際によく使うコマンド__  
 __**************************************************************************************__  
 
-#### # k8s-lapp-windowsをネームスペースごとすべて削除
-./k8s-lapp-all-remove.sh
+#### # k8s-lampp-windowsをネームスペースごとすべて削除
+./k8s-lampp-all-remove.sh
 
 #### # namespace切り替え
 kubectl config current-context  
 #### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドに組み込む
-kubectl config set-context docker-for-desktop --namespace=k8s-lapp-windows  
+kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts  
