@@ -59,7 +59,7 @@ Setting画面からGeneralタブを開き、Expose daemon on tcp://localhost:237
 #### # Docker for Windowsの設定で、Shared DrivesのCにチェックを入れる
 
 #### # WSLでskaffoldインストール
-curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64  
+curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.33.0/skaffold-linux-amd64
 sudo chmod +x skaffold  
 sudo mv skaffold /usr/local/bin  
 
@@ -250,8 +250,8 @@ kubectl apply -f ./k8s-mailsv-sv.yaml
 #### ＜ingressを構築＞
 #### # Ingress Controllerの作成
 ##### # 参考サイト：https://kubernetes.github.io/ingress-nginx/deploy/
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml  
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml  
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/provider/cloud-generic.yaml
 cd /mnt/c/k8s/k8s-lampp-windows/10.ingress  
 
 #### sslの鍵登録 ※HTTPSを使用する際は実施
