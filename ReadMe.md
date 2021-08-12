@@ -59,10 +59,10 @@ Setting画面からGeneralタブを開き、Expose daemon on tcp://localhost:237
 #### # Docker for Windowsの設定で、Shared DrivesのCにチェックを入れる
 
 #### # WSLでskaffoldインストール
-curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.33.0/skaffold-linux-amd64
+curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.33.0/skaffold-linux-amd64  
 sudo chmod +x skaffold  
 sudo mv skaffold /usr/local/bin  
-
+  
 #### # WSL(Bash on Windows)でDockerを使用する
 ##### ＜参考＞
 ##### # https://qiita.com/yoichiwo7/items/0b2aaa3a8c26ce8e87fe
