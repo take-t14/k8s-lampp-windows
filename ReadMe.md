@@ -54,10 +54,10 @@ __******************************************************************************
 ・Show system containers  
 
 #### # Docker for Windowsの設定で、WSLから使えるようにする。
-Setting画面からGeneralタブを開き、Expose daemon on tcp://localhost:2375 without TLSにチェックを入れる。
-
+Setting画面からGeneralタブを開き、Expose daemon on tcp://localhost:2375 without TLSにチェックを入れる。  
+  
 #### # Docker for Windowsの設定で、Shared DrivesのCにチェックを入れる
-
+  
 #### # WSLでskaffoldインストール
 curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.33.0/skaffold-linux-amd64  
 sudo chmod +x skaffold  
@@ -70,21 +70,21 @@ sudo mv skaffold /usr/local/bin
 ##### # https://www.myzkstr.com/archives/888
 
 #### # Dockerインストール (Communityエディション)
-sudo apt install apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"
-sudo apt update
-sudo apt install docker-ce
-
+sudo apt install apt-transport-https ca-certificates curl software-properties-common  
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -  
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"  
+sudo apt update  
+sudo apt install docker-ce  
+  
 #### # dockerホストの登録
 echo "export DOCKER_HOST=tcp://127.0.0.1:2375" >> ~/.bash_profile  
 source ~/.bash_profile  
-
+  
 #### # kuberctlインストール
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -   
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list  
 sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni  
-
+  
 #### # WSLのkuberctlの接続先を、Docker for WIndowsのkubernetes環境へ向ける
 
 docker ps --no-trunc | grep 'advertise-address='  
