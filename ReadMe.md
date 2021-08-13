@@ -155,7 +155,7 @@ kubectl get namespace
 kubectl config current-context  
 ##### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドset-contextの次に組み込む。  
 ##### # namespaceには、切り替えたいnamespaceを設定する。  
-kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts  
@@ -273,7 +273,7 @@ __******************************************************************************
 #### # namespace切り替え
 kubectl config current-context  
 #### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドに組み込む
-kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts  

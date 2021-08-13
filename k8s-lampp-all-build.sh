@@ -4,7 +4,7 @@
 kubectl create namespace k8s-lampp-windows
 
 #### namespace切り替え
-kubectl config set-context docker-for-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
 
 #### ＜DBのpvc構築＞
 cd /mnt/c/k8s/k8s-lampp-windows/1.db-disk
@@ -64,8 +64,8 @@ kubectl apply -f ./k8s-mailsv-sv.yaml
 #### ＜ingressを構築＞
 ##### Ingress Controllerの作成
 ##### 参考サイト：https://kubernetes.github.io/ingress-nginx/deploy/
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/provider/cloud-generic.yaml
 cd /mnt/c/k8s/k8s-lampp-windows/10.ingress
 
 #### sslの鍵登録 ※HTTPSを使用する際は実施

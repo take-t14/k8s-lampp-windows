@@ -71,4 +71,5 @@ spec:
       volumes:
       - name: php-apache-psql-data
         persistentVolumeClaim:
-          claimName: php-apache-psql-pvc
+          claimName: php-apache-psql-sample-pvc
+
