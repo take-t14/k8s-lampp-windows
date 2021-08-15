@@ -21,12 +21,15 @@ spec:
     port: 953
     protocol: TCP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dns
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: dns
   template:
     metadata:
       labels:

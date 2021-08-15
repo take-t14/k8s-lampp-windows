@@ -1,62 +1,59 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: postgresql
   labels:
-    app: mysql
+    app: postgresql
 spec:
   ports:
-  - port: 3306
-    name: mysql
+  - port: 5432
+    name: postgresql
   clusterIP: None
   selector:
-    app: mysql
+    app: postgresql
 
 ---
 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mysql
+  name: postgresql
   labels:
-    app: mysql
+    app: postgresql
 spec:
-  serviceName: "mysql"
+  serviceName: "postgresql"
+  replicas: 1
   selector:
     matchLabels:
-      app: mysql
-  replicas: 1
+      app: postgresql
   template:
     metadata:
       labels:
-        app: mysql
+        app: postgresql
     spec:
       terminationGracePeriodSeconds: 60
       securityContext:
        fsGroup: 1000
       containers:
-      - name: mysql
-        image: php-gke-mysql:latest
+      - name: postgresql
+        image: php-gke-postgres:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 3306
-          name: mysql
+        - containerPort: 5432
+          name: postgresql
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: php-apache-psql-secret
-              key: database_password
-        - name: MYSQL_USER
+        - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: php-apache-psql-secret
               key: database_user
-        - name: MYSQL_PASSWORD
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: php-apache-psql-secret
               key: database_password
+        - name: PGDATA
+          value: /var/lib/postgresql/data2
         volumeMounts:
         - name: php-apache-psql-data
           mountPath: /mnt/php-apache-psql-data
@@ -72,4 +69,3 @@ spec:
       - name: php-apache-psql-data
         persistentVolumeClaim:
           claimName: php-apache-psql-sample-pvc
-

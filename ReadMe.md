@@ -88,21 +88,22 @@ sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl kubernete
   
 #### # WSLのkuberctlの接続先を、Docker for WIndowsのkubernetes環境へ向ける
 
-docker ps --no-trunc | grep 'advertise-address='  
+# docker ps --no-trunc | grep 'advertise-address='  
 ##### # 上記コマンドの実行結果で、「--secure-port=」以降のポートを確認。以下コマンドの[PORT]へ組み込んで実行
-kubectl config set-cluster docker-for-desktop-cluster --server=https://localhost:[PORT]  
+# kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
 
-mv ~/.kube/config ~/.kube/config_back  
-ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
+# mv ~/.kube/config ~/.kube/config_back  
+# ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
 
 #### # ダッシュボードインストール（1回だけ実施すればよい）
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml  
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml  
 
 #### # kubectl proxyを実行（ダッシュボード閲覧に必要）
 kubectl proxy  
 
 #### # ダッシュボードへアクセス
-http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/  
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/  
+
 
 #### # 権限取得
 kubectl -n kube-system get secret  
@@ -209,6 +210,8 @@ kubectl -n k8s-lampp-windows get pvc
 #### # 全イメージを表示する．
 docker images  
 
+#### sshの鍵登録 ※要事前に2.src-deploy-disk\ssh-keysへSSHの鍵配備
+kubectl create secret generic ssh-keys --from-file=./ssh-keys/id_rsa --from-file=./ssh-keys/id_rsa.pub  
 
 #### ＜php-srcのボリュームへチェックアウト＞
 ##### # /mnt/c/k8s/k8s-lampp-windows/2.src-deploy-disk\storage
@@ -229,31 +232,34 @@ cd /mnt/c/k8s/k8s-lampp-windows/4.mysql-rebuild
 cd /mnt/c/k8s/k8s-lampp-windows/5.dns  
 ./skaffold_run.sh  
 
-#### ＜php構築＞
-##### # php7イメージビルド
-cd /mnt/c/k8s/k8s-lampp-windows/6.php7-rebuild
-./skaffold_run.sh  
+#### ＜ingressを構築＞
+#### # Ingress Controllerの作成
+##### # 参考サイト：https://kubernetes.github.io/ingress-nginx/deploy/
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.48.1/deploy/static/provider/cloud/deploy.yaml
+cd /mnt/c/k8s/k8s-lampp-windows/6.ingress  
 
-##### # php5イメージビルド
-cd /mnt/c/k8s/k8s-lampp-windows/7.php5-rebuild
-./skaffold_run.sh  
+#### ＜mailsv構築＞
+##### # mailsvイメージビルド
+cd /mnt/c/k8s/k8s-lampp-windows/7.mailsv-rebuild  
+kubectl apply -f ./k8s-mailsv-sv.yaml  
 
 #### ＜apache構築＞
 ##### # apacheイメージビルド
 cd /mnt/c/k8s/k8s-lampp-windows/8.apache-rebuild
 ./skaffold_run.sh  
 
-#### ＜mailsv構築＞
-##### # mailsvイメージビルド
-cd /mnt/c/k8s/k8s-lampp-windows/9.mailsv-rebuild  
-kubectl apply -f ./k8s-mailsv-sv.yaml  
+#### ＜php構築＞
+##### # php5イメージビルド
+cd /mnt/c/k8s/k8s-lampp-windows/9.php5-rebuild
+./skaffold_run.sh  
 
-#### ＜ingressを構築＞
-#### # Ingress Controllerの作成
-##### # 参考サイト：https://kubernetes.github.io/ingress-nginx/deploy/
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/mandatory.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.26.0/deploy/static/provider/cloud-generic.yaml
-cd /mnt/c/k8s/k8s-lampp-windows/10.ingress  
+##### # php7イメージビルド
+cd /mnt/c/k8s/k8s-lampp-windows/10.php7-rebuild
+./skaffold_run.sh  
+
+##### # php8イメージビルド
+cd /mnt/c/k8s/k8s-lampp-windows/11.php8-rebuild
+./skaffold_run.sh  
 
 #### sslの鍵登録 ※HTTPSを使用する際は実施
 ##### # kubectl create secret tls example1.co.jp --key ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.key --cert ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.crt
@@ -277,16 +283,16 @@ kubectl config current-context
 kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
-kubectl config get-contexts  
+kubectl config get-contexts -n k8s-lampp-windows  
 
 #### # pod一覧
-kubectl get pod  
+kubectl get pod -n k8s-lampp-windows  
 
 #### # init-data.shの実行
 ##### # init-data.shはpod起動時に自動で実行される。pod稼働中に必要になった場合に以下を実行する。
 kubectl exec -it [podの名称] /bin/bash  
-kubectl exec -it php-fpm-67564bbb5-st42c /bin/bash  
-kubectl exec -it apache-c8958f876-tdzbw /bin/bash  
+kubectl exec -it php8-fpm-56fdd49699-t8md6 /bin/bash -n k8s-lampp-windows  
+kubectl exec -it apache-5ddc98c6c9-sm4xv /bin/bash  
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  
 kubectl exec -it dns-6b8bb6b759-rkn25 /bin/bash 
@@ -297,6 +303,14 @@ kubectl exec -it php5-fpm-7d56f8dc44-rr5jw /bin/bash
 #### # ポートフォワード（postgreSQLへの接続時等に使用）
 kubectl port-forward postgresql-0 5432:5432  
 
+#### # Windowsエクスプローラーからコンテナがマウントする永続ボリューム（docker-desktop Distroのディレクトリ）へ書き込み・参照したい時のパス
+\\wsl$\docker-desktop-data\version-pack-data\community  
+  
+#### # WSLでZドライブをマウント
+##### # ※要事前に「\\wsl$\docker-desktop-data」をネットワークドライブZへマウント
+sudo mkdir /mnt/z  
+sudo mount -t drvfs z: /mnt/z  
+
 
 __**************************************************************************************__  
 __*　トラブルシューティング__  
@@ -306,9 +320,14 @@ __******************************************************************************
 ##### # Docker for Windowsの設定画面を開き、左下がKubernetes is runningとなってから再度試す。それでもダメな場合は以下を試す。
 docker ps --no-trunc | grep 'advertise-address='  
 ##### # 「--secure-port=」以降のポートを確認。以下コマンドの[PORT]へ組み込んで実行
-kubectl config set-cluster docker-for-desktop-cluster --server=https://localhost:[PORT]  
+kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
 
 #### # kubectl get podとして「Unable to connect to the server: x509: certificate signed by unknown authority」と出た場合
 mv ~/.kube/config ~/.kube/config_back  
 ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
+
+
+
+
+
 

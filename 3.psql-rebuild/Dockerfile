@@ -1,5 +1,6 @@
-# FROM postgres:9.6 # groongaƒCƒ“ƒXƒg[ƒ‹
-FROM postgres:9.2.23
+# FROM postgres:9.6 # groongaï¿½Cï¿½ï¿½ï¿½Xï¿½gï¿½[ï¿½ï¿½ï¿½ï¿½
+# FROM postgres:9.2.23
+FROM postgres:13.3
 RUN localedef -i ja_JP -c -f UTF-8 -A /usr/share/locale/locale.alias ja_JP.UTF-8
 ENV LANG ja_JP.UTF-8
 COPY ./sqls/*.sql /docker-entrypoint-initdb.d/
@@ -9,9 +10,11 @@ RUN chown root:root /usr/local/bin/creat-volume.sh
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
 RUN chown root:root /usr/local/bin/docker-entrypoint.sh
+RUN ln -s /usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN apt-get update
 RUN apt-get install -y less
+RUN apt-get install -y procps
 
 # groonga
 #RUN apt update

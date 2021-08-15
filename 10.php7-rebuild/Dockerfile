@@ -45,17 +45,17 @@ RUN useradd www-data
 RUN echo 'www-data:www-data' |chpasswd
 ENV PATH $PATH:/opt/remi/php72/root/usr/sbin:/opt/remi/php72/root/usr/bin:/usr/local/bin
 
-# Œ¾Œê‚ð“ú–{Œê‚ÉÝ’è
+# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ÉÝ’ï¿½
 RUN localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
 RUN echo 'LANG="ja_JP.UTF-8"' >  /etc/locale.conf
 ENV LANG ja_JP.UTF-8
 
-# “ú•t‚ð“ú–{Œê‚ÉÝ’è
+# ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ÉÝ’ï¿½
 RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock
 RUN rm -f /etc/localtime
 RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
-# svn‚ð”FØ‹L‰¯‚·‚é‚æ‚¤Ý’è
+# svnï¿½ï¿½Fï¿½Ø‹Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½Ý’ï¿½
 RUN mkdir ~/.subversion
 RUN echo -e "[global]\nstore-passwords = yes\nstore-auth-creds = yes" > ~/.subversion/config
 

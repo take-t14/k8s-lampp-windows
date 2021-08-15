@@ -11,12 +11,15 @@ spec:
     - protocol: TCP
       port: 9000
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: php5-fpm
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: php5-fpm
   template:
     metadata:
       labels:
