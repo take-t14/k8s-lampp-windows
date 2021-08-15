@@ -88,12 +88,11 @@ sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl kubernete
   
 #### # WSLのkuberctlの接続先を、Docker for WIndowsのkubernetes環境へ向ける
 
-# docker ps --no-trunc | grep 'advertise-address='  
+##### # docker ps --no-trunc | grep 'advertise-address='  
 ##### # 上記コマンドの実行結果で、「--secure-port=」以降のポートを確認。以下コマンドの[PORT]へ組み込んで実行
-# kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
-
-# mv ~/.kube/config ~/.kube/config_back  
-# ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
+##### # kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
+##### # mv ~/.kube/config ~/.kube/config_back  
+##### # ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
 
 #### # ダッシュボードインストール（1回だけ実施すればよい）
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml  
