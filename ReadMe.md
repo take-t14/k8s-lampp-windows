@@ -233,6 +233,16 @@ cd /mnt/c/k8s/k8s-lampp-windows/5.dns
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.48.1/deploy/static/provider/cloud/deploy.yaml
 cd /mnt/c/k8s/k8s-lampp-windows/6.ingress  
 
+
+#### sslの鍵登録 ※HTTPSを使用する際は実施
+##### # kubectl create secret tls example1.co.jp --key ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.key --cert ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.crt
+
+#### # Ingressの作成
+kubectl apply -f 80.ingress.yaml  
+
+#### # ingressに割り振られたグローバルアドレスの確認
+kubectl get ingress  
+
 #### ＜mailsv構築＞
 ##### # mailsvイメージビルド
 cd /mnt/c/k8s/k8s-lampp-windows/7.mailsv-rebuild  
@@ -256,15 +266,6 @@ cd /mnt/c/k8s/k8s-lampp-windows/10.php7-rebuild
 cd /mnt/c/k8s/k8s-lampp-windows/11.php8-rebuild
 ./skaffold_run.sh  
 
-#### sslの鍵登録 ※HTTPSを使用する際は実施
-##### # kubectl create secret tls example1.co.jp --key ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.key --cert ../8.apache-rebuild/ssl/example1.co.jp/svrkey-sample-empty.crt
-
-#### # Ingressの作成
-kubectl apply -f 80.ingress.yaml  
-
-#### # ingressに割り振られたグローバルアドレスの確認
-kubectl get ingress  
-
 __**************************************************************************************__  
 __*　以下はkubernetesを操作する際によく使うコマンド__  
 __**************************************************************************************__  
@@ -286,7 +287,7 @@ kubectl get pod -n k8s-lampp-windows
 #### # init-data.shの実行
 ##### # init-data.shはpod起動時に自動で実行される。pod稼働中に必要になった場合に以下を実行する。
 kubectl exec -it [podの名称] /bin/bash  
-kubectl exec -it php8-fpm-56fdd49699-t8md6 /bin/bash -n k8s-lampp-windows  
+kubectl exec -it php8-fpm-59bd4c7dc4-p722m /bin/bash -n k8s-lampp-windows  
 kubectl exec -it apache-5ddc98c6c9-sm4xv /bin/bash  
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  
