@@ -292,7 +292,7 @@ kubectl exec -it apache-5ddc98c6c9-sm4xv /bin/bash
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  
 kubectl exec -it dns-6b8bb6b759-rkn25 /bin/bash 
-kubectl exec -it mysql-0 /bin/bash 
+kubectl exec -it mysql-0 /bin/bash -n k8s-lampp-windows  
 kubectl exec -it php5-fpm-7d56f8dc44-rr5jw /bin/bash  
 
 

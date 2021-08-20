@@ -1,38 +1,42 @@
-# FROM postgres:9.6 # groonga�C���X�g�[����
-# FROM postgres:9.2.23
-FROM postgres:13.3
-RUN localedef -i ja_JP -c -f UTF-8 -A /usr/share/locale/locale.alias ja_JP.UTF-8
-ENV LANG ja_JP.UTF-8
+FROM centos:centos7
+
+ENV GOSU_VERSION=1.11
+RUN gpg --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64" \
+    && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64.asc" \
+    && gpg --verify /usr/local/bin/gosu.asc \
+    && rm /usr/local/bin/gosu.asc \
+    && rm -r /root/.gnupg/ \
+    && chmod +x /usr/local/bin/gosu \
+    # Verify that the binary works
+    && gosu nobody true
+
+RUN yum update -y && \
+    yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+    yum install -y postgresql12-server sudo
+
+ENV PATH $PATH:/usr/pgsql-12/bin
+ENV PGDATA /var/lib/pgsql/12/data
+
 COPY ./sqls/*.sql /docker-entrypoint-initdb.d/
-COPY ./creat-volume.sh /usr/local/bin/
-RUN chmod 700 /usr/local/bin/creat-volume.sh
-RUN chown root:root /usr/local/bin/creat-volume.sh
+COPY ./create-volume.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/create-volume.sh
+RUN chown root:root /usr/local/bin/create-volume.sh
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
 RUN chown root:root /usr/local/bin/docker-entrypoint.sh
 RUN ln -s /usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN apt-get update
-RUN apt-get install -y less
-RUN apt-get install -y procps
+# 言語を日本語に設定
+RUN localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
+RUN echo 'LANG="ja_JP.UTF-8"' >  /etc/locale.conf
+ENV LANG ja_JP.UTF-8
 
-# groonga
-#RUN apt update
-#RUN apt install -y -V apt-transport-https gnupg wget
-#RUN echo "deb [signed-by=/usr/share/keyrings/groonga-archive-keyring.gpg] https://packages.groonga.org/debian/ stretch main" > /etc/apt/sources.list.d/groonga.list
-#RUN echo "deb-src [signed-by=/usr/share/keyrings/groonga-archive-keyring.gpg] https://packages.groonga.org/debian/ stretch main" >> /etc/apt/sources.list.d/groonga.list
-#RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
-#RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-#RUN wget -O /usr/share/keyrings/groonga-archive-keyring.gpg https://packages.groonga.org/debian/groonga-archive-keyring.gpg
-#RUN apt update
-#RUN apt install -y -V postgresql-9.6-pgroonga
-#RUN apt-get install -y -V groonga-tokenizer-mecab
+# 日付を日本語に設定
+RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock
+RUN rm -f /etc/localtime
+RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
-# pg_bigm
-#RUN wget 'https://ja.osdn.net/frs/redir.php?m=iij&f=pgbigm%2F66559%2Fpg_bigm-1.1-20161011.tar.gz' -O pg_bigm-1.1.tar.gz
-#RUN tar zxvf pg_bigm-1.1.tar.gz
-#RUN cd pg_bigm-1.1-20161011/
-#RUN apt-get install -y --reinstall build-essentia
-#RUN apt install -y build-essential devscripts debhelperl
-#RUN make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config
-#RUN make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config install
+EXPOSE 5432
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["postgres"]

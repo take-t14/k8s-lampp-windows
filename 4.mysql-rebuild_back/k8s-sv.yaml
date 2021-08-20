@@ -65,7 +65,7 @@ spec:
         - sh
         - "-c"
         - |
-          /usr/local/bin/create-volume.sh
+          /usr/local/bin/creat-volume.sh
         securityContext:
           privileged: true
       volumes:

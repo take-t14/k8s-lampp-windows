@@ -12,9 +12,10 @@ use `mysql_db`;
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `user_name` longtext,
-  `user_password` longtext
+  `user_password` longtext,
+  PRIMARY KEY (`user_name`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- /*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`

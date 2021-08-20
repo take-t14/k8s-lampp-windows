@@ -1,40 +1,48 @@
-FROM mysql:5.6.39
+FROM centos:centos7
 
-# Set debian default locale to ja_JP.UTF-8
-RUN apt-get update && \
-    apt-get install -y locales && \
-    rm -rf /var/lib/apt/lists/* && \
-    echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen ja_JP.UTF-8
-ENV LC_ALL ja_JP.UTF-8
+ENV GOSU_VERSION=1.11
+RUN gpg --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64" \
+    && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64.asc" \
+    && gpg --verify /usr/local/bin/gosu.asc \
+    && rm /usr/local/bin/gosu.asc \
+    && rm -r /root/.gnupg/ \
+    && chmod +x /usr/local/bin/gosu \
+    # Verify that the binary works
+    && gosu nobody true
 
-# Set MySQL character
-RUN { \
-    echo '[mysqld]'; \
-    echo 'character-set-server=utf8mb4'; \
-    echo 'collation-server=utf8mb4_general_ci'; \
-    echo '[client]'; \
-    echo 'default-character-set=utf8mb4'; \
-} > /etc/mysql/conf.d/charset.cnf
+ENV MYSQL_MAJOR="5.6"
+ENV MYSQL_MINOR="39"
+ARG version=${MYSQL_MAJOR}.${MYSQL_MINOR}
+RUN yum -y update \
+ && yum -y install http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm \
+ && yum -y install yum-utils \
+ && yum -y --enablerepo=mysql56-community install mysql-community-server-${version} \
+ && yum -y install less \
+ && yum clean all
+
+# add conf
+RUN rm -f /etc/my.cnf
+COPY ./my.cnf /etc/my.cnf
+RUN chmod 644 /etc/my.cnf
 
 COPY ./sqls/*.sql /docker-entrypoint-initdb.d/
-COPY ./creat-volume.sh /usr/local/bin/
-RUN chmod 700 /usr/local/bin/creat-volume.sh
-RUN chown root:root /usr/local/bin/creat-volume.sh
+COPY ./create-volume.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/create-volume.sh
+RUN chown root:root /usr/local/bin/create-volume.sh
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
 RUN chown root:root /usr/local/bin/docker-entrypoint.sh
 
-RUN sed -i "s/#log-error      = \/var\/log\/mysql\/error.log/log-error      = \/var\/log\/mysql\/error.log/" /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "slow_query_log # slow queryログの有効化" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "slow_query_log_file=/var/log/mysql/slow.log # ファイルパス" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "long_query_time=5" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "log-queries-not-using-indexes" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "[mysqld]" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "general_log " >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "general_log_file=/var/log/mysql/general.log" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "log-bin=master-bin #バイナリログのベース名" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN echo "log-bin-index=master-bin #バイナリログのファイル名を記録したindexファイル名" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+# 言語を日本語に設定
+RUN localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
+RUN echo 'LANG="ja_JP.UTF-8"' >  /etc/locale.conf
+ENV LANG ja_JP.UTF-8
 
-RUN apt-get update
-RUN apt-get install -y less
+# 日付を日本語に設定
+RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock
+RUN rm -f /etc/localtime
+RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+EXPOSE 3306
+ENTRYPOINT ["/usr/local/bin/create-volume.sh"]
