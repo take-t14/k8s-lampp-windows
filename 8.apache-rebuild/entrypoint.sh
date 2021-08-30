@@ -7,6 +7,6 @@ ln -s /mnt/src/example2.co.jp /home/example2.co.jp >> /var/log/entrypoint.log 2>
 ln -s /mnt/src/laravel-ddd-sample /home/laravel-ddd-sample >> /var/log/entrypoint.log 2>&1
 
 cat /var/log/entrypoint.log
-#exec "$@"
-eval "nohup $@ >> /var/log/entrypoint.log 2>&1 &"
-tail -f /dev/null
+exec "$@"
+#eval "nohup $@ >> /var/log/entrypoint.log 2>&1 &"
+#tail -f /dev/null
