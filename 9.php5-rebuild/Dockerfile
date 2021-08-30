@@ -37,6 +37,9 @@ ADD ./php-fpm.d/ /etc/opt/remi/php56/php-fpm.d
 ADD ./dns-regist.sh /usr/local/bin/
 RUN chmod 700 /usr/local/bin/dns-regist.sh
 RUN chown root:root /usr/local/bin/dns-regist.sh
+ADD ./entrypoint.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/entrypoint.sh
+RUN chown root:root /usr/local/bin/entrypoint.sh
 
 RUN sed -i "s/;date.timezone =/date.timezone = Asia\/Tokyo/" /etc/opt/remi/php56/php.ini
 
@@ -45,17 +48,17 @@ RUN useradd www-data
 RUN echo 'www-data:www-data' |chpasswd
 ENV PATH $PATH:/opt/remi/php56/root/usr/sbin:/opt/remi/php56/root/usr/bin:/usr/local/bin
 
-# Œ¾Œê‚ð“ú–{Œê‚ÉÝ’è
+# è¨€èªžã‚’æ—¥æœ¬èªžã«è¨­å®š
 RUN localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
 RUN echo 'LANG="ja_JP.UTF-8"' >  /etc/locale.conf
 ENV LANG ja_JP.UTF-8
 
-# “ú•t‚ð“ú–{Œê‚ÉÝ’è
+# æ—¥ä»˜ã‚’æ—¥æœ¬èªžã«è¨­å®š
 RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock
 RUN rm -f /etc/localtime
 RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
-# svn‚ð”FØ‹L‰¯‚·‚é‚æ‚¤Ý’è
+# svnè¨­å®š
 RUN mkdir ~/.subversion
 RUN echo -e "[global]\nstore-passwords = yes\nstore-auth-creds = yes" > ~/.subversion/config
 

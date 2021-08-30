@@ -37,6 +37,9 @@ ADD ./php-fpm.d/ /etc/opt/remi/php80/php-fpm.d
 ADD ./dns-regist.sh /usr/local/bin/
 RUN chmod 700 /usr/local/bin/dns-regist.sh
 RUN chown root:root /usr/local/bin/dns-regist.sh
+ADD ./entrypoint.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/entrypoint.sh
+RUN chown root:root /usr/local/bin/entrypoint.sh
 
 RUN sed -i "s/;date.timezone =/date.timezone = Asia\/Tokyo/" /etc/opt/remi/php80/php.ini
 
@@ -45,17 +48,17 @@ RUN useradd www-data
 RUN echo 'www-data:www-data' |chpasswd
 ENV PATH $PATH:/opt/remi/php80/root/usr/sbin:/opt/remi/php80/root/usr/bin:/usr/local/bin
 
-# �������{��ɐݒ�
+# 言語を日本語に設定
 RUN localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
 RUN echo 'LANG="ja_JP.UTF-8"' >  /etc/locale.conf
 ENV LANG ja_JP.UTF-8
 
-# ���t����{��ɐݒ�
+# 日付を日本語に設定
 RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock
 RUN rm -f /etc/localtime
 RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
-# svn��F�؋L������悤�ݒ�
+# svn設定
 RUN mkdir ~/.subversion
 RUN echo -e "[global]\nstore-passwords = yes\nstore-auth-creds = yes" > ~/.subversion/config
 

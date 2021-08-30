@@ -22,7 +22,9 @@ COPY ./Includes /opt/rh/httpd24/root/etc/httpd/Includes
 # SSL通信する際はここを有効にする
 # RUN mkdir -p /etc/httpd/ssl
 # COPY ./ssl /etc/httpd/ssl
-
+ADD ./entrypoint.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/entrypoint.sh
+RUN chown root:root /usr/local/bin/entrypoint.sh
 
 RUN sed -i "s/    DirectoryIndex index.html/    DirectoryIndex index.php/" /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf
 RUN sed -i "s/#ServerName www.example.com:80/ServerName localhost:80/" /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf

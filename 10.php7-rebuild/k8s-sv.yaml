@@ -35,17 +35,14 @@ spec:
           - sh
           - "-c"
           - |
-            ln -s /mnt/src/example1.co.jp /home/example1.co.jp && \
-            ln -s /mnt/src/example2.co.jp /home/example2.co.jp && \
-            /usr/local/bin/dns-regist.sh && \
-            php-fpm
+            /usr/local/bin/entrypoint.sh php-fpm
         ports:
         - containerPort: 9000
         volumeMounts:
         - name: disk
           mountPath: "/mnt/src"
         - name: ssh-dir
-          mountPath: "/root/.ssh/"
+          mountPath: "/mnt/ssh"
         securityContext:
           privileged: true
       volumes:

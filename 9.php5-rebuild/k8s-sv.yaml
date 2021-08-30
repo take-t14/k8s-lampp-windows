@@ -35,16 +35,21 @@ spec:
           - sh
           - "-c"
           - |
-            /usr/local/bin/dns-regist.sh && \
-            php-fpm
+            /usr/local/bin/entrypoint.sh php-fpm
         ports:
         - containerPort: 9000
         volumeMounts:
         - name: disk
           mountPath: "/mnt/src"
+        - name: ssh-dir
+          mountPath: "/mnt/ssh"
         securityContext:
           privileged: true
       volumes:
       - name: disk
         persistentVolumeClaim:
           claimName: php-src-sample-pvc
+      - name: ssh-dir
+        secret:
+          secretName: ssh-keys
+          defaultMode: 0600
