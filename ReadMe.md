@@ -288,7 +288,7 @@ kubectl get pod -n k8s-lampp-windows
 ##### # init-data.shはpod起動時に自動で実行される。pod稼働中に必要になった場合に以下を実行する。
 kubectl exec -it [podの名称] /bin/bash  
 kubectl exec -it php7-fpm-7f4cc68c57-55pxn /bin/bash -n k8s-lampp-windows  
-kubectl exec -it apache-659b9d4686-pcqn6 /bin/bash -n k8s-lampp-windows  
+kubectl exec -it apache-97c76855-l2rzs /bin/bash -n k8s-lampp-windows  
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  
 kubectl exec -it dns-6b8bb6b759-rkn25 /bin/bash 

@@ -37,9 +37,9 @@ ADD ./php-fpm.d/ /etc/opt/remi/php80/php-fpm.d
 ADD ./dns-regist.sh /usr/local/bin/
 RUN chmod 700 /usr/local/bin/dns-regist.sh
 RUN chown root:root /usr/local/bin/dns-regist.sh
-ADD ./entrypoint.sh /usr/local/bin/
-RUN chmod 700 /usr/local/bin/entrypoint.sh
-RUN chown root:root /usr/local/bin/entrypoint.sh
+ADD ./entrypoint*.sh /usr/local/bin/
+RUN chmod 700 /usr/local/bin/entrypoint*.sh
+RUN chown root:root /usr/local/bin/entrypoint*.sh
 
 RUN sed -i "s/;date.timezone =/date.timezone = Asia\/Tokyo/" /etc/opt/remi/php80/php.ini
 
