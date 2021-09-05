@@ -12,11 +12,12 @@ k8s-lampp-windows/
 　┣3.psql-rebuild/・・・postgreSQLのコンテナ、service、deployment等を作成するyaml等  
 　┣4.mysql-rebuild/・・・MySQLのコンテナ、service、deployment等を作成するyaml等  
 　┣5.dns/・・・DNS(bind)のコンテナ、service、deployment等を作成するyaml等  
-　┣6.php7-rebuild/・・・php-fpm(php7)のコンテナ、service、deployment等を作成するyaml等  
-　┣7.php5-rebuild/・・・php-fpm(php5)のコンテナ、service、deployment等を作成するyaml等  
+　┣6.ingress/・・・ingressのyaml等  
+　┣7.mailsv-rebuild/・・・postfixのコンテナ、service、deployment等を作成するyaml等  
 　┣8.apache-rebuild/・・・apacheのコンテナ、service、deployment等を作成するyaml等  
-　┣9.mailsv-rebuild/・・・postfixのコンテナ、service、deployment等を作成するyaml等  
-　┣10.ingress/・・・ingressのyaml等  
+　┣9.php5-rebuild/・・・php-fpm(php5)のコンテナ、service、deployment等を作成するyaml等  
+　┣10.php7-rebuild/・・・php-fpm(php7)のコンテナ、service、deployment等を作成するyaml等  
+　┣11.php8-rebuild/・・・php-fpm(php8)のコンテナ、service、deployment等を作成するyaml等  
 　┣k8s-lampp-all-build.sh・・・k8s-lampp-windowsのk8sコンテナを一斉に作成するシェル  
 　┣k8s-lampp-all-remove.sh・・・k8s-lampp-windowsのk8sコンテナを一斉に削除するシェル  
 　┣kube-db-proxy.bat・・・podのDBへDBクライアント（A5等）から接続する為のポートフォワード起動  
@@ -32,9 +33,9 @@ __******************************************************************************
 ・Windows10 Pro(x64)  
   
 ◆ソフトウェア  
-・Docker for Windows 2.5.0.1(49550) ～ 3.6.0(67351)  
+・minikube v1.23.0
 ・Ubuntu 20.04 LTS(WSL2)  
-・Kubernetes v1.19.3 ～ 1.21.3  
+・Kubernetes v1.22.1
   
 __**************************************************************************************__  
 __*　kubernetesを動かす基盤となるソフトウェアのインストール（全てUbuntu 18.04 LTSで実施）__  
@@ -43,18 +44,47 @@ __******************************************************************************
 
 #### # k8s-lampp-windowsのフォルダの中身を「C:\k8s\k8s-lampp-windows」へ配置する。
 
-#### # Docker for Windowsをインストールし、設定画面でkubernetesを有効にする。
-
-以下をチェックON  
-・Enable Kubernetes  
-・Deploy Docker Stack to Kubernetes by default  
-・Show system containers  
-
-#### # Docker for Windowsの設定で、WSLから使えるようにする。
-Setting画面からGeneralタブを開き、Expose daemon on tcp://localhost:2375 without TLSにチェックを入れる。  
+##### # Dockerインストール＆自動起動設定
+https://get.docker.com | sh  
   
-#### # Docker for Windowsの設定で、Shared DrivesのCにチェックを入れる
+sudo visudo  
+##### # 以下を追記。[ユーザーID]には自分のユーザ名を入れること  
+```
+[ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/sbin/service docker start
+[ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/sbin/service docker stop
+[ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/bin/mkdir /mnt/k8s
+[ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/bin/mount --bind /var/lib/docker/volumes/minikube/_data/lib/k8s /mnt/k8s
+```
   
+vim ~/.bash_profile
+##### # 以下を追記して、WSL再起動  
+```
+echo $(service docker status | awk '{print $4}') #起動状態を表示
+if test $(service docker status | awk '{print $4}') = 'not'; then #停止状態
+  sudo /usr/sbin/service docker start #起動
+fi
+```
+  
+##### # Minikubeインストール  
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+  && chmod +x minikube
+sudo mkdir -p /usr/local/bin/
+sudo install minikube /usr/local/bin/
+  
+vim ~/.bash_profile
+##### # 以下を追記して、WSL再起動  
+```
+MINIKUBE=`minikube status 2>&1 | grep -e "Stopped" -e "Nonexistent"` #起動状態を表示
+echo $MINIKUBE
+if [ -n "$MINIKUBE" ]; then #停止状態
+  minikube start --driver=docker --kubernetes-version=v1.22.1 --memory='4g' --cpus=4 #起動
+fi
+```
+  
+##### # Ingressアドオン有効化  
+minikube addons enable ingress  
+※WindowsのブラウザからコンテナのWebサーバーへアクセスするには、「ingressproxy.bat」の実行が必要  
+   
 #### # WSLでskaffoldインストール
 curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.33.0/skaffold-linux-amd64  
 sudo chmod +x skaffold  
@@ -66,52 +96,41 @@ sudo mv skaffold /usr/local/bin
 ##### # https://medium.com/@XanderGrzy/developing-for-docker-kubernetes-with-windows-wsl-9d6814759e9f
 ##### # https://www.myzkstr.com/archives/888
 
-#### # Dockerインストール (Communityエディション)
+#### # Dockerインストール (Communityエディション)  
 sudo apt install apt-transport-https ca-certificates curl software-properties-common  
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -  
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"  
 sudo apt update  
 sudo apt install docker-ce  
   
-#### # dockerホストの登録
-echo "export DOCKER_HOST=tcp://127.0.0.1:2375" >> ~/.bash_profile  
-source ~/.bash_profile  
-  
-#### # kuberctlインストール
+#### # kuberctlインストール  
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -   
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list  
 sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni  
   
-#### # WSLのkuberctlの接続先を、Docker for WIndowsのkubernetes環境へ向ける
-
-##### # docker ps --no-trunc | grep 'advertise-address='  
-##### # 上記コマンドの実行結果で、「--secure-port=」以降のポートを確認。以下コマンドの[PORT]へ組み込んで実行
-##### # kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
-##### # mv ~/.kube/config ~/.kube/config_back  
-##### # ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
-
-#### # ダッシュボードインストール（1回だけ実施すればよい）
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml  
-
-#### # kubectl proxyを実行（ダッシュボード閲覧に必要）
-kubectl proxy  
-
-#### # ダッシュボードへアクセス
-http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/  
-
-
-#### # 権限取得
-kubectl -n kube-system get secret  
-
-#### # 認証トークン取得（取得したTokenをサインイン画面のトークンで設定してサインインする方式）
-kubectl -n kube-system describe secret default  
-
-#### # 認証トークン設定（取得したTokenからkubeconfigを出力し、そのファイルを指定してサインインする方式。）
-##### # 以下のコマンドの[TOKEN]へ取得した認証トークンを設定する。
-##### # kubectl config set-credentials docker-for-desktop --token="[TOKEN]"
-
-#### # ダッシュボードのサインインの画面で、C:\Users\[ユーザ名]\.kube\configを指定するとサインイン出来る。
-
+#### # Windowsエクスプローラーからコンテナがマウントする永続ボリューム（docker-desktop Distroのディレクトリ）へ書き込み・参照したい時のパス  
+##### # 以下コマンドを実行し、DockerのファイルシステムをWSLへマウント
+vim ~/.bash_profile
+##### # 以下を追記して、WSL再起動  
+```
+if [ ! -e /mnt/k8s ] ; then
+  sudo mkdir /mnt/k8s
+fi
+mountpoint -q /mnt/k8s
+if [ ! $? -eq 0 ] ; then
+  sudo mount --bind /var/lib/docker/volumes/minikube/_data/lib/k8s /mnt/k8s
+fi
+```
+※Windowsキー＋Ctrlで開く「ファイル名を指定して実行」ダイアログで以下を入力してエンターで、  
+　Dockerのファイルシステムを閲覧、書き込みが可能となる  
+　（ただし、ownerをwww-data:www-dataにするか、777でフル権限を与える必要あり）  
+\\wsl$\mnt\k8s  
+  
+#### # DockerのDNS設定  
+sudo vi /etc/init.d/docker
+##### # DOCKER_OPTS=を以下のように修正
+DOCKER_OPTS="--dns 8.8.8.8"
+※設定後「minikube-restart.bat」を実行してdocker、minikubeを再起動。
 
 __**************************************************************************************__  
 __*　kubernetesでLAPP環境構築する手順__  
@@ -152,7 +171,7 @@ kubectl get namespace
 kubectl config current-context  
 ##### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドset-contextの次に組み込む。  
 ##### # namespaceには、切り替えたいnamespaceを設定する。  
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts  
@@ -276,7 +295,7 @@ __******************************************************************************
 #### # namespace切り替え
 kubectl config current-context  
 #### # 上記コマンドで表示されたコンテキスト名を、以下のコマンドに組み込む
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 #### # コンテキストの向き先確認
 kubectl config get-contexts -n k8s-lampp-windows  
@@ -287,7 +306,9 @@ kubectl get pod -n k8s-lampp-windows
 #### # init-data.shの実行
 ##### # init-data.shはpod起動時に自動で実行される。pod稼働中に必要になった場合に以下を実行する。
 kubectl exec -it [podの名称] /bin/bash  
-kubectl exec -it php7-fpm-7f4cc68c57-55pxn /bin/bash -n k8s-lampp-windows  
+kubectl exec -it php5-fpm-7d8bc98989-wj8sp /bin/bash -n k8s-lampp-windows  
+kubectl exec -it php7-fpm-54b77dc466-ks6lh /bin/bash -n k8s-lampp-windows  
+kubectl exec -it php8-fpm-6d65cd64f4-l26sg /bin/bash -n k8s-lampp-windows  
 kubectl exec -it apache-97c76855-l2rzs /bin/bash -n k8s-lampp-windows  
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  
@@ -298,32 +319,7 @@ kubectl exec -it php5-fpm-7d56f8dc44-rr5jw /bin/bash
 
 #### # ポートフォワード（postgreSQLへの接続時等に使用）
 kubectl port-forward postgresql-0 5432:5432  
-
-#### # Windowsエクスプローラーからコンテナがマウントする永続ボリューム（docker-desktop Distroのディレクトリ）へ書き込み・参照したい時のパス
-\\wsl$\docker-desktop-data\version-pack-data\community  
   
-#### # WSLでZドライブをマウント
-##### # ※要事前に「\\wsl$\docker-desktop-data」をネットワークドライブZへマウント
-sudo mkdir /mnt/z  
-sudo mount -t drvfs z: /mnt/z  
-
-
 __**************************************************************************************__  
 __*　トラブルシューティング__  
 __**************************************************************************************__  
-
-#### # kubectl get podとして「The connection to the server localhost:6445 was refused - did you specify the right host or port?」と出た場合
-##### # Docker for Windowsの設定画面を開き、左下がKubernetes is runningとなってから再度試す。それでもダメな場合は以下を試す。
-docker ps --no-trunc | grep 'advertise-address='  
-##### # 「--secure-port=」以降のポートを確認。以下コマンドの[PORT]へ組み込んで実行
-kubectl config set-cluster docker-desktop --server=https://localhost:[PORT]  
-
-#### # kubectl get podとして「Unable to connect to the server: x509: certificate signed by unknown authority」と出た場合
-mv ~/.kube/config ~/.kube/config_back  
-ln -s /mnt/c/Users/<ユーザ名>/.kube/config ~/.kube/config  
-
-
-
-
-
-

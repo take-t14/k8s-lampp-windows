@@ -1,4 +1,4 @@
-FROM centos:centos7.2.1511
+FROM centos:centos7
 
 # remi
 RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
@@ -18,7 +18,7 @@ RUN yum -y install \
   php80-php-pecl-mongodb php80-php-pecl-xdebug3 php80-php-pecl-yaml subversion git \
   ssmtp mailutils gcc-c++ make \
   yum clean all
-RUN curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+RUN curl -sL https://rpm.nodesource.com/setup_14.x | bash -
 RUN yum install -y nodejs \
   yum clean all
 RUN rm -rf /var/lib/apt/lists/*
@@ -65,6 +65,9 @@ RUN echo -e "[global]\nstore-passwords = yes\nstore-auth-creds = yes" > ~/.subve
 
 RUN mv /etc/opt/remi/php80/php.d /etc/opt/remi/php80/php.d_back
 RUN mkdir /etc/opt/remi/php80/php.d
+RUN cp -a /etc/opt/remi/php80/php.d_back/*opcache*.ini /etc/opt/remi/php80/php.d/
+RUN cp -a /etc/opt/remi/php80/php.d_back/*xdebug*.ini /etc/opt/remi/php80/php.d/
+RUN cp -a /etc/opt/remi/php80/php.d_back/opcache-default.blacklist /etc/opt/remi/php80/php.d/
 
 RUN cd /tmp/
 RUN curl -s https://getcomposer.org/installer | php

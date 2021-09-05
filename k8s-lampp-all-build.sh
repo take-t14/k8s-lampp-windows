@@ -4,7 +4,7 @@
 kubectl create namespace k8s-lampp-windows
 
 #### namespace切り替え
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 #### ＜DBのpvc構築＞
 cd /mnt/c/k8s/k8s-lampp-windows/1.db-disk

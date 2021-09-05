@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 kubectl delete -f k8s-sv.yaml
 

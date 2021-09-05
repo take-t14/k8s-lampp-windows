@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #### namespace切り替え
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 #### ＜postgreSQL削除＞
 ##### postgreSQLイメージ削除
@@ -73,7 +73,7 @@ cd /mnt/c/k8s/k8s-lampp-windows/6.ingress
 kubectl delete -f 80.ingress.yaml
 
 #### namespace切り替え
-kubectl config set-context docker-desktop --namespace=k8s-lampp-windows  
+kubectl config set-context minikube --namespace=k8s-lampp-windows  
 
 #### namespace削除
 kubectl delete namespace k8s-lampp-windows

@@ -1,5 +1,5 @@
 @echo off
 
-bash ./kubeproxy.sh
+bash ./ingressproxy.sh
 
 @echo on

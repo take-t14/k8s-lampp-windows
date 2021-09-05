@@ -1,5 +1,5 @@
 @echo off
 
-bash ./kubeproxy.sh
+bash ./minikube-stop.sh
 
 @echo on
