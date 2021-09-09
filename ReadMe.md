@@ -55,38 +55,18 @@ sudo visudo
 [ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/bin/mkdir /mnt/k8s
 [ユーザーID] ALL=(ALL:ALL) NOPASSWD: /usr/bin/mount --bind /var/lib/docker/volumes/minikube/_data/lib/k8s /mnt/k8s
 ```
-  
-vim ~/.bash_profile
-##### # 以下を追記して、WSL再起動  
-```
-echo $(service docker status | awk '{print $4}') #起動状態を表示
-if test $(service docker status | awk '{print $4}') = 'not'; then #停止状態
-  sudo /usr/sbin/service docker start #起動
-fi
-```
-  
+    
 ##### # Minikubeインストール  
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
   && chmod +x minikube
 sudo mkdir -p /usr/local/bin/
 sudo install minikube /usr/local/bin/
+minikube start --driver=docker --kubernetes-version=v1.22.1 --memory='3g' --cpus=2 #起動
   
 vim ~/.bash_profile
-##### # 以下を追記して、WSL再起動  
+##### # 以下を追記して、WSL再起動
 ```
-MINIKUBE=`minikube status 2>&1 | grep -e "Stopped" -e "Nonexistent"` #起動状態を表示
-echo $MINIKUBE
-if [ -n "$MINIKUBE" ]; then #停止状態
-  minikube start --driver=docker --kubernetes-version=v1.22.1 --memory='4g' --cpus=4 #起動
-fi
-
-# WindowsのホストIP登録
-HOSTS=`minikube ssh "cat /etc/hosts" | grep host.docker.internal`
-echo $HOSTS
-if [ -z "$HOSTS" ]; then
-        export winhost=$(cat /etc/hosts | grep host.docker.internal | awk '{ print $1 }')
-        minikube ssh "sudo su - -c 'echo \"$winhost host.docker.internal\" >> /etc/hosts'"
-fi
+/mnt/c/k8s/k8s-lampp-windows/minikube-start.sh
 ```
   
 ##### # Ingressアドオン有効化  
@@ -116,22 +96,11 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list  
 sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni  
   
-#### # Windowsエクスプローラーからコンテナがマウントする永続ボリューム（docker-desktop Distroのディレクトリ）へ書き込み・参照したい時のパス  
-##### # 以下コマンドを実行し、DockerのファイルシステムをWSLへマウント
-vim ~/.bash_profile
-##### # 以下を追記して、WSL再起動  
-```
-if [ ! -e /mnt/k8s ] ; then
-  sudo mkdir /mnt/k8s
-fi
-mountpoint -q /mnt/k8s
-if [ ! $? -eq 0 ] ; then
-  sudo mount --bind /var/lib/docker/volumes/minikube/_data/lib/k8s /mnt/k8s
-fi
-```
+#### # Windowsエクスプローラーからコンテナがマウントする永続ボリュームへ書き込み・参照したい時のパス  
 ※Windowsキー＋Ctrlで開く「ファイル名を指定して実行」ダイアログで以下を入力してエンターで、  
 　Dockerのファイルシステムを閲覧、書き込みが可能となる  
-　（ただし、ownerをwww-data:www-dataにするか、777でフル権限を与える必要あり）  
+　（ただし、ownerをwww-data:www-dataにするか、777でフル権限を与える必要あり）
+　（一度以下「kubernetesでLAPP環境構築する手順」以降を実行して環境が出来てからWSL再起動が必要）  
 \\wsl$\mnt\k8s  
   
 #### # DockerのDNS設定  
