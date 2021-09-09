@@ -79,6 +79,14 @@ echo $MINIKUBE
 if [ -n "$MINIKUBE" ]; then #停止状態
   minikube start --driver=docker --kubernetes-version=v1.22.1 --memory='4g' --cpus=4 #起動
 fi
+
+# WindowsのホストIP登録
+HOSTS=`minikube ssh "cat /etc/hosts" | grep host.docker.internal`
+echo $HOSTS
+if [ -z "$HOSTS" ]; then
+        export winhost=$(cat /etc/hosts | grep host.docker.internal | awk '{ print $1 }')
+        minikube ssh "sudo su - -c 'echo \"$winhost host.docker.internal\" >> /etc/hosts'"
+fi
 ```
   
 ##### # Ingressアドオン有効化  
@@ -308,7 +316,7 @@ kubectl get pod -n k8s-lampp-windows
 kubectl exec -it [podの名称] /bin/bash  
 kubectl exec -it php5-fpm-7d8bc98989-wj8sp /bin/bash -n k8s-lampp-windows  
 kubectl exec -it php7-fpm-54b77dc466-ks6lh /bin/bash -n k8s-lampp-windows  
-kubectl exec -it php8-fpm-6d65cd64f4-l26sg /bin/bash -n k8s-lampp-windows  
+kubectl exec -it php8-fpm-5458f6655-dhhq4 /bin/bash -n k8s-lampp-windows  
 kubectl exec -it apache-97c76855-l2rzs /bin/bash -n k8s-lampp-windows  
 kubectl exec -it postgresql-0 /bin/bash  
 kubectl exec -it postfix-77d69ff664-5drvf /bin/bash  

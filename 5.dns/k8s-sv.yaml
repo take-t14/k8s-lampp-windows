@@ -53,3 +53,10 @@ spec:
 #        - "-c"
 #        - |
 #          /bin/sh -c /opt/install.sh;/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+        volumeMounts:
+        - name: haproxy-hosts
+          mountPath: /mnt/hosts
+      volumes:
+      - name: haproxy-hosts
+        hostPath:
+          path: /etc/hosts

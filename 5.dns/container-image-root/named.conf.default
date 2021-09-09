@@ -88,5 +88,13 @@ zone "co.jp" IN {
 	forward first ;
 };
 
+zone "host.docker.internal" IN {
+	type master;
+	file "/named/var/named.host.docker.internal.zone";
+	check-names ignore;
+	forwarders { 10.96.0.10; };
+	forward first ;
+};
+
 include "/named/etc/named.rfc1912.zones";
 include "/named/etc/named.root.key";
