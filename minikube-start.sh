@@ -21,7 +21,10 @@ fi
 
 HOSTS=`minikube ssh "cat /etc/hosts" | grep host.docker.internal`
 echo $HOSTS
+export winhost=$(cat /etc/hosts | grep host.docker.internal | awk '{ print $1 }')
 if [ -z "$HOSTS" ]; then
-    export winhost=$(cat /etc/hosts | grep host.docker.internal | awk '{ print $1 }')
     minikube ssh "sudo su - -c 'echo \"$winhost host.docker.internal\" >> /etc/hosts'"
+else
+    minikube ssh "sudo su - -c 'cp /etc/hosts /etc/hosts_back; sed -i \"s/^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\} host\.docker\.internal$/$winhost host.docker.internal/\" /etc/hosts_back'"
+    minikube ssh "sudo su - -c 'cp /etc/hosts_back /etc/hosts'"
 fi
