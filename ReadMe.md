@@ -78,7 +78,7 @@ $ uname -r
 ```
 [wsl2]
 processors=2
-memory=3.5GB
+memory=3500MB
 swap=0
 ```
   
