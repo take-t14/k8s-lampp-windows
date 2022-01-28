@@ -95,7 +95,7 @@ sudo visudo
 ```
   
 ##### # Minikubeインストール  
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+curl -Lo minikube https://github.com/kubernetes/minikube/releases/download/v1.23.0/minikube-linux-amd64 \
   && chmod +x minikube
 sudo mkdir -p /usr/local/bin/
 sudo install minikube /usr/local/bin/
@@ -121,13 +121,6 @@ sudo mv skaffold /usr/local/bin
 ##### # https://qiita.com/yoichiwo7/items/0b2aaa3a8c26ce8e87fe
 ##### # https://medium.com/@XanderGrzy/developing-for-docker-kubernetes-with-windows-wsl-9d6814759e9f
 ##### # https://www.myzkstr.com/archives/888
-
-#### # Dockerインストール (Communityエディション)  
-sudo apt install apt-transport-https ca-certificates curl software-properties-common  
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -  
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"  
-sudo apt update  
-sudo apt install docker-ce  
   
 #### # kuberctlインストール  
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -   
